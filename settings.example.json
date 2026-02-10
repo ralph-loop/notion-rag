@@ -1,0 +1,14 @@
+{
+  "databases": {
+    "notion_db_label": "https://www.notion.so/title-abc123def456...?v=abc123def456...&source=copy_link"
+  },
+  "models": {
+    "query": "gemini-2.5-flash-lite",
+    "embedding": "gemini-embedding-001",
+    "image_vision": "gemini-3-flash-preview"
+  },
+  "sync_days": 2,
+  "index_wait_sec": 5,
+  "server_host": "127.0.0.1",
+  "server_port": 8000
+}
