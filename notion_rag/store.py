@@ -102,6 +102,16 @@ def list_documents_map(client: genai.Client, store_name: str) -> dict:
     return result
 
 
+def delete_document(client: genai.Client, doc) -> None:
+    """Delete a single document from a store.
+
+    Arguments:
+    client -- Authenticated Gemini API client. genai.Client.
+    doc -- The document object to delete. Document.
+    """
+    client.file_search_stores.documents.delete(name=doc.name, config={"force": True})
+
+
 def delete_store(client: genai.Client, store_name: str) -> bool:
     """Delete a store by display_name.
 

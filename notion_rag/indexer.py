@@ -23,6 +23,7 @@ from .extractor import extract_blocks_with_images
 from .logger import log_indexing, log_init, log_sync
 from .store import (
     db_store_name,
+    delete_document,
     find_document,
     get_document_last_edited,
     get_or_create_store,
@@ -283,7 +284,7 @@ def init_db(label: str | None = None, db_url: str | None = None) -> dict:
     }
 
 
-def sync_db(label: str | None = None, force: bool = False) -> dict:
+def sync_db(label: str | None = None, force: bool = False, full_scan: bool = False) -> dict:
     """Sync a Notion database by re-indexing changed pages.
 
     Arguments:
@@ -291,10 +292,11 @@ def sync_db(label: str | None = None, force: bool = False) -> dict:
              Auto-detected when omitted and exactly one database is registered.
              String or None.
     force -- Force reindex all pages regardless of changes (default: False). Boolean.
+    full_scan -- Query all pages to detect and remove deleted pages (default: False). Boolean.
 
     Returns: summary dictionary with keys:
-             {label, db_id, pages_checked, pages_updated, pages_skipped, total_cost,
-              indexing_cost, image_cost}.
+             {label, db_id, pages_checked, pages_updated, pages_skipped, pages_deleted,
+              total_cost, indexing_cost, image_cost}.
     """
     from .config import NOTION_TOKEN, SYNC_DAYS
 
@@ -327,6 +329,26 @@ def sync_db(label: str | None = None, force: bool = False) -> dict:
 
     # Build document map from Store for change detection
     doc_map = list_documents_map(client, store.name)
+
+    # Detect deleted pages (only with --full-scan)
+    pages_deleted = 0
+    if full_scan:
+        print(f"\n-- Detecting deleted pages (full scan) --")
+        all_page_ids = set(query_database_pages(notion, db_id, last_days=None))
+        stored_page_ids = set(doc_map.keys())
+        deleted_page_ids = stored_page_ids - all_page_ids
+
+        for page_id in deleted_page_ids:
+            doc = doc_map[page_id]
+            print(f"  Removed: {doc.display_name}")
+            delete_document(client, doc)
+            del doc_map[page_id]
+            pages_deleted += 1
+
+        if pages_deleted > 0:
+            print(f"  Removed {pages_deleted} deleted page(s) from store")
+        else:
+            print(f"  No deleted pages found")
 
     # Check and reindex changed pages
     print(f"\n-- Checking for changes --")
@@ -380,6 +402,7 @@ def sync_db(label: str | None = None, force: bool = False) -> dict:
     print(f"  Checked:  {pages_checked}")
     print(f"  Updated:  {pages_updated}")
     print(f"  Skipped:  {pages_skipped}")
+    print(f"  Deleted:  {pages_deleted}")
     if total_cost > 0:
         print(f"  Indexing cost:       ${total_indexing_cost:.8f}")
         print(f"  Image analysis cost: ${total_image_cost:.8f}")
@@ -391,6 +414,7 @@ def sync_db(label: str | None = None, force: bool = False) -> dict:
         pages_checked=pages_checked,
         pages_updated=pages_updated,
         pages_skipped=pages_skipped,
+        pages_deleted=pages_deleted,
         indexing_cost=total_indexing_cost,
         image_cost=total_image_cost,
         force=force,
@@ -402,6 +426,7 @@ def sync_db(label: str | None = None, force: bool = False) -> dict:
         "pages_checked": pages_checked,
         "pages_updated": pages_updated,
         "pages_skipped": pages_skipped,
+        "pages_deleted": pages_deleted,
         "total_cost": total_cost,
         "indexing_cost": total_indexing_cost,
         "image_cost": total_image_cost,

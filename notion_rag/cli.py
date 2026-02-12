@@ -59,13 +59,14 @@ def cmd_sync(args):
     Returns: None. Prints summary to stdout.
     """
     label = args.name if args.name else resolve_db()[0]
-    result = sync_db(label, force=args.force)
+    result = sync_db(label, force=args.force, full_scan=args.full_scan)
 
     print(f"\n-- Sync Summary --")
     print(f"  Database ID:     {result['db_id']}")
     print(f"  Pages checked:   {result['pages_checked']}")
     print(f"  Pages updated:   {result['pages_updated']}")
     print(f"  Pages skipped:   {result['pages_skipped']}")
+    print(f"  Pages deleted:   {result['pages_deleted']}")
     print(f"  Indexing cost:   ${result['indexing_cost']:.8f}")
     print(f"  Image cost:      ${result['image_cost']:.8f}")
     print(f"  Total cost:      ${result['total_cost']:.8f}")
@@ -358,6 +359,9 @@ def main():
     p_sync.add_argument("name", nargs="?", help="Database label (auto-detected if omitted)")
     p_sync.add_argument(
         "--force", action="store_true", help="Force re-index all pages"
+    )
+    p_sync.add_argument(
+        "--full-scan", action="store_true", help="Scan all pages to detect and remove deleted pages"
     )
 
     # serve

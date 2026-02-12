@@ -59,6 +59,7 @@ class SyncRequest(BaseModel):
 
     name: str | None = None
     force: bool = False
+    full_scan: bool = False
 
 
 class InitRequest(BaseModel):
@@ -266,7 +267,7 @@ async def sync(request: SyncRequest):
 
     HTTP Method: POST
     """
-    result = sync_db(request.name, force=request.force)
+    result = sync_db(request.name, force=request.force, full_scan=request.full_scan)
     return result
 
 
