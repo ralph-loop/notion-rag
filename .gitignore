@@ -275,3 +275,4 @@ $RECYCLE.BIN/
 logs/
 .venv/
 settings.json
+.omc
