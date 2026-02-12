@@ -139,6 +139,7 @@ def log_sync(
     pages_checked=0,
     pages_updated=0,
     pages_skipped=0,
+    pages_deleted=0,
     indexing_cost=0.0,
     image_cost=0.0,
     force=False,
@@ -151,6 +152,7 @@ def log_sync(
     pages_checked -- Number of pages checked (default: 0). Integer.
     pages_updated -- Number of pages updated (default: 0). Integer.
     pages_skipped -- Number of pages skipped (default: 0). Integer.
+    pages_deleted -- Number of deleted pages removed from store (default: 0). Integer.
     indexing_cost -- Cost of indexing operations in USD (default: 0.0). Float.
     image_cost -- Cost of image processing in USD (default: 0.0). Float.
     force -- Whether force sync was enabled (default: False). Boolean.
@@ -161,6 +163,7 @@ def log_sync(
         "pages_checked": pages_checked,
         "pages_updated": pages_updated,
         "pages_skipped": pages_skipped,
+        "pages_deleted": pages_deleted,
         "indexing_cost": indexing_cost,
         "image_cost": image_cost,
         "total_cost": indexing_cost + image_cost,
