@@ -276,3 +276,4 @@ logs/
 .venv/
 settings.json
 .omc
+tags.lock
